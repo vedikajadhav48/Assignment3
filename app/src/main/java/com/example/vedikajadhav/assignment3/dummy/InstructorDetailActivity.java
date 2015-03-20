@@ -94,6 +94,7 @@ public class InstructorDetailActivity extends ActionBarActivity {
        // httpClient = AndroidHttpClient.newInstance(null);
         //mHttpClient = AndroidHttpClient.newInstance(null);
         postTask.execute(postCommentUrl);
+        Log.i(TAG, "Hi");
 
     }
 
