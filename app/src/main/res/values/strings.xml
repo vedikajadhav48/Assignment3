@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Assignment3</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_instructor_list">InstructorListActivity</string>
+    <string name="title_activity_instructor_detail">InstructorDetailActivity</string>
+    <string name="first_name_text_view">First Name</string>
+    <string name="last_name_text_view">Last Name</string>
+    <string name="office_text_view">Office</string>
+    <string name="phone_text_view">Phone</string>
+    <string name="email_text_view">Email</string>
+    <string name="rating_text_view">Rating</string>
+    <string name="comments_label_text_view">Comments</string>
+    <string name="write_comment_hint">Write Comment here...</string>
+    <string name="post_comment_button_label">Post Comment</string>
+
+</resources>
