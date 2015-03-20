@@ -32,7 +32,6 @@ import java.util.HashMap;
 
 public class InstructorListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, OnTaskFinishedListener {
     private static final String TAG = "InstructorListActivity";
-    private Context mContext;
     private ListView mListView;
     private InstructorAdapter instructorAdapter;
     AndroidHttpClient mInstructorListHttpClient;

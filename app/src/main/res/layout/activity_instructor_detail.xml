@@ -92,31 +92,34 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <TextView
             android:text="@string/comments_label_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp"/>
 
         <ListView
             android:id="@+id/comment_list_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:layout_weight="1.0"/>
 
         <EditText
             android:id="@+id/write_comment_edit_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/write_comment_hint"
             android:inputType="text"
-            android:imeOptions="actionDone"/>
+            android:imeOptions="actionDone" >
+            <requestFocus/>
+            </EditText>
 
         <Button
             android:id="@+id/post_comment_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/post_comment_button_label"
             android:onClick="postComment"/>
