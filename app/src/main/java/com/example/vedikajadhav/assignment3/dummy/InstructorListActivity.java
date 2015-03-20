@@ -1,6 +1,7 @@
 package com.example.vedikajadhav.assignment3.dummy;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
@@ -29,14 +30,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class InstructorListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class InstructorListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, OnTaskFinishedListener {
     private static final String TAG = "InstructorListActivity";
+    private Context mContext;
     private ListView mListView;
     private InstructorAdapter instructorAdapter;
     AndroidHttpClient mInstructorListHttpClient;
-    HttpInstructorListTask mInstructorListTask = new HttpInstructorListTask();
+    HttpInstructorListTask mInstructorListTask;
     private ArrayList<Instructor> mInstructorNamesList = new ArrayList<Instructor>();
     public static final String EXTRA_INSTRUCTOR_ID = "com.example.vedikajadhav48.assignment3.instructorDetailActivityIntent.instructorID";
+    public static final String EXTRA_INSTRUCTOR_FIRST_NAME = "com.example.vedikajadhav48.assignment3.instructorDetailActivityIntent.instructorFirstName";
+    public static final String EXTRA_INSTRUCTOR_LAST_NAME = "com.example.vedikajadhav48.assignment3.instructorDetailActivityIntent.instructorLastName";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,27 +48,41 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
         setContentView(R.layout.activity_instructor_list);
 
         mListView = (ListView)findViewById(R.id.instructor_list_view);
-        mInstructorListHttpClient = AndroidHttpClient.newInstance(null);
-        String url = "http://bismarck.sdsu.edu/rateme/list";
-        Log.i(TAG, "onCreate listACtvity" + url);
-        mInstructorListTask.execute(url);
+        instructorAdapter = new InstructorAdapter(mInstructorNamesList, this);
+
+        Object object = getLastCustomNonConfigurationInstance();
+
+        if(null != object){
+            instructorAdapter = (InstructorAdapter)object;
+        }
+        else{
+            mInstructorListHttpClient = AndroidHttpClient.newInstance(null);
+            mInstructorListTask = new HttpInstructorListTask(mInstructorListHttpClient, this);
+            mInstructorListTask.execute(getResources().getString(R.string.instructor_list_url));
+            Log.i(TAG, "vedika mInstructorNamesList" + mInstructorNamesList);
+        }
+        mListView.setAdapter(instructorAdapter);
         mListView.setOnItemClickListener(this);
+    }
+
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return instructorAdapter;
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        //String userAgent = null;
-        /*mHttpClient = AndroidHttpClient.newInstance(userAgent);
-        String url = "http://bismarck.sdsu.edu/rateme/list";
-        task.execute(url);*/
+        Log.i(TAG, "onResume()");
     }
 
     @Override
     public void onPause(){
         super.onPause();
         Log.i(TAG, "onPause()");
-        mInstructorListHttpClient.close();
+        if(mInstructorListHttpClient != null){
+            mInstructorListHttpClient.close();
+        }
     }
 
     @Override
@@ -73,75 +91,31 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
         Instructor instructor = (Instructor)parent.getAdapter().getItem(position);
         Intent intent = new Intent(this, InstructorDetailActivity.class);
         intent.putExtra(EXTRA_INSTRUCTOR_ID, instructor.getId());
+        intent.putExtra(EXTRA_INSTRUCTOR_FIRST_NAME, instructor.getFirstName());
+        intent.putExtra(EXTRA_INSTRUCTOR_LAST_NAME, instructor.getLastName());
         startActivity(intent);
     }
 
-    class HttpInstructorListTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... urls) {
-            try {
-
-                ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                HttpGet getMethod = new HttpGet(urls[0]);
-                String responseBody = mInstructorListHttpClient.execute(getMethod, responseHandler);
-                return responseBody;
-            }catch (Exception throwable) {
-                Log.i(TAG, "did not work", throwable);
-                throwable.printStackTrace();
+    public void getInstructorList(String result){
+        try {
+            JSONArray data = new JSONArray(result);
+            for(int i=0; i<data.length(); i++){
+                JSONObject firstPerson = (JSONObject) data.get(i);
+                Instructor newInstructor = new Instructor();
+                newInstructor.setId(firstPerson.getInt("id"));
+                newInstructor.setFirstName(firstPerson.getString("firstName"));
+                newInstructor.setLastName(firstPerson.getString("lastName"));
+                mInstructorNamesList.add(newInstructor);
             }
-            return null;
-        }
 
-        @Override
-        public void onPostExecute(String result) {
-            Log.i(TAG, "Result passed to postExecute listActivity" + result);
-            try {
-                JSONArray data = new JSONArray(result);
-                for(int i=0; i<data.length(); i++){
-                    JSONObject firstPerson = (JSONObject) data.get(i);
-                    Instructor newInstructor = new Instructor();
-                    newInstructor.setId(firstPerson.getInt("id"));
-                    newInstructor.setFirstName(firstPerson.getString("firstName"));
-                    newInstructor.setLastName(firstPerson.getString("lastName"));
-                    mInstructorNamesList.add(newInstructor);
-                }
-                Log.i(TAG, "mInstructorNamesList" + mInstructorNamesList);
-                instructorAdapter = new InstructorAdapter(mInstructorNamesList);
-                mListView.setAdapter(instructorAdapter);
-                //listAdapter.notifyDataSetChanged();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            Log.i(TAG, "getInstructorList");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
-    //Inner class InstructorAdapter
-
-    private class InstructorAdapter extends ArrayAdapter<Instructor> {
-
-        public InstructorAdapter(ArrayList<Instructor> mInstructorNamesList){
-            super(getApplicationContext(), 0 ,mInstructorNamesList);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent){
-            //if you weren't given a view inflate one
-            if(convertView == null){
-                convertView = getLayoutInflater().inflate(R.layout.instructor_list_item, null);
-            }
-
-            //Configure the view for this Instructor
-            Instructor instructor = getItem(position);
-
-            TextView firstNameTextView = (TextView)convertView.findViewById(R.id.instructor_firstName_textView);
-            firstNameTextView.setText(instructor.getFirstName());
-
-            TextView lastNameTextView = (TextView)convertView.findViewById(R.id.instructor_lastName_textView);
-            lastNameTextView.setText(instructor.getLastName());
-
-            return convertView;
-        }
-
+    @Override
+    public void onFinished(String result) {
+        getInstructorList(result);
     }
 }

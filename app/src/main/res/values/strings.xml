@@ -14,5 +14,10 @@
     <string name="comments_label_text_view">Comments</string>
     <string name="write_comment_hint">Write Comment here...</string>
     <string name="post_comment_button_label">Post Comment</string>
+    <string name="instructor_list_url">http://bismarck.sdsu.edu/rateme/list</string>
+    <string name="instructor_detail_url">http://bismarck.sdsu.edu/rateme/instructor/</string>
+    <string name="instructor_comments_url">http://bismarck.sdsu.edu/rateme/comments/</string>
+    <string name="post_instructor_rating_url">http://bismarck.sdsu.edu/rateme/rating/</string>
+    <string name="post_instructor_comment_url">http://bismarck.sdsu.edu/rateme/comment/</string>
 
 </resources>

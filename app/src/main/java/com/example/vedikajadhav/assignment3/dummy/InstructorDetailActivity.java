@@ -2,6 +2,7 @@ package com.example.vedikajadhav.assignment3.dummy;
 
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,21 +37,16 @@ import java.util.ArrayList;
 public class InstructorDetailActivity extends ActionBarActivity {
     private static final String TAG = "InstructorDetailActivity";
     AndroidHttpClient mHttpClient;
-    //AndroidHttpClient newHttpClient = AndroidHttpClient.newInstance(null);
-    //AndroidHttpClient postHttpClient = AndroidHttpClient.newInstance(null);
-    //HttpClientTask task;
-   // AndroidHttpClient httpClient;
-
     private int mInstructorId;
-    private EditText mFirstNameEditText;
-    private EditText mLastNameEditText;
+    private String mInstructorFirstName;
+    private String mInstructorLastName;
     private EditText mOfficeEditText;
     private EditText mPhoneEditText;
     private EditText mEmailEditText;
     private EditText mRatingEditText;
     private EditText mCommentsEditText;
     private EditText mCommentWriteText;
-    private Button mPostCommentButton;
+   // private Button mPostCommentButton;
     private ListView mCommentListView;
     private CommentAdapter mCommentAdapter;
     ArrayList<Comment> mCommentsList = new ArrayList<Comment>();
@@ -62,18 +58,23 @@ public class InstructorDetailActivity extends ActionBarActivity {
         setContentView(R.layout.activity_instructor_detail);
 
         mCommentListView = (ListView)findViewById(R.id.comment_list_view);
-        mFirstNameEditText = (EditText)findViewById(R.id.first_name_edit_text);
-        mLastNameEditText = (EditText)findViewById(R.id.last_name_edit_text);
-        /*mOfficeEditText = (EditText)findViewById(R.id.office_edit_text);
+        mOfficeEditText = (EditText)findViewById(R.id.office_edit_text);
         mPhoneEditText = (EditText)findViewById(R.id.phone_edit_text);
         mEmailEditText = (EditText)findViewById(R.id.email_edit_text);
-        mRatingEditText = (EditText)findViewById(R.id.rating_edit_text);*/
+        mRatingEditText = (EditText)findViewById(R.id.rating_edit_text);
         //mCommentsEditText = (EditText)findViewById(R.id.comments_edit_text);
         mCommentWriteText = (EditText)findViewById(R.id.write_comment_edit_text);
-        mPostCommentButton = (Button)findViewById(R.id.post_comment_button);
+       // mPostCommentButton = (Button)findViewById(R.id.post_comment_button);
 
         mInstructorId = getIntent().getIntExtra(InstructorListActivity.EXTRA_INSTRUCTOR_ID, 0);
-        /*mHttpClient = AndroidHttpClient.newInstance(null);*/
+        mInstructorFirstName = getIntent().getStringExtra(InstructorListActivity.EXTRA_INSTRUCTOR_FIRST_NAME);
+        mInstructorLastName = getIntent().getStringExtra(InstructorListActivity.EXTRA_INSTRUCTOR_LAST_NAME);
+
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+            actionBar.setSubtitle(mInstructorFirstName + " " + mInstructorLastName);
+        }
+
         HttpClientTask task = new HttpClientTask();
         mHttpClient = AndroidHttpClient.newInstance(null);
         String url1 = "http://bismarck.sdsu.edu/rateme/instructor/" + mInstructorId;
@@ -88,11 +89,8 @@ public class InstructorDetailActivity extends ActionBarActivity {
         Log.i(TAG, "Text inside the comment" + commentToPost);
 
         String postCommentUrl = "http://bismarck.sdsu.edu/rateme/comment/" + mInstructorId;
-        //HttpClient httpClient = new DefaultHttpClient();
         HttpClientPostTask postTask = new HttpClientPostTask();
         mHttpClient = AndroidHttpClient.newInstance(null);
-       // httpClient = AndroidHttpClient.newInstance(null);
-        //mHttpClient = AndroidHttpClient.newInstance(null);
         postTask.execute(postCommentUrl);
         Log.i(TAG, "Hi");
 
@@ -103,8 +101,6 @@ public class InstructorDetailActivity extends ActionBarActivity {
         super.onPause();
         Log.i(TAG, "onPause()");
         mHttpClient.close();
-        //postHttpClient.close();
-        //httpClient.close();
     }
 
     //inner HttpClientPostTask
@@ -123,7 +119,6 @@ public class InstructorDetailActivity extends ActionBarActivity {
             postMethod.setEntity(comment);
             try {
                 HttpResponse responseBody = mHttpClient.execute(postMethod);
-                //Log.i(TAG,"Response body after POST COMMENT" + responseBody.toString());
             } catch (Throwable t) {
                 Log.i("rew", t.toString());
             }
@@ -132,7 +127,6 @@ public class InstructorDetailActivity extends ActionBarActivity {
 
         @Override
         public void onPostExecute(Void result){
-            //Log.i(TAG, "result passed to onPostExecute of detailActivity" + result);
             HttpClientTask newTask = new HttpClientTask();
             mHttpClient = AndroidHttpClient.newInstance(null);
             String url2 = "http://bismarck.sdsu.edu/rateme/comments/" + mInstructorId;
@@ -163,25 +157,13 @@ public class InstructorDetailActivity extends ActionBarActivity {
 
         @Override
         public void onPostExecute(ArrayList<String> result){
-            //ArrayList<Comment> mCommentsList = new ArrayList<Comment>();
-            //Log.i(TAG, "result passed to onPostExecute of detailActivity" + result);
             mCommentsList.clear();
             try {
                 if(result.size() == 2) {
                     JSONObject data = new JSONObject(result.get(0));
-                /*Instructor newInstructor = new Instructor();
-                newInstructor.setId(data.getInt("id"));
-                newInstructor.setOffice(data.getString("office"));
-                newInstructor.setPhone(data.getString("phone"));
-                newInstructor.setEmail(data.getString("email"));
-                newInstructor.setFirstName(data.getString("firstName"));
-                newInstructor.setLastName(data.getString("lastName"));*/
-
-                    mFirstNameEditText.setText(data.getString("firstName"));
-                    mLastNameEditText.setText(data.getString("lastName"));
-                /*mOfficeEditText.setText(data.getString("office"));
+                mOfficeEditText.setText(data.getString("office"));
                 mPhoneEditText.setText(data.getString("phone"));
-                mEmailEditText.setText(data.getString("email"));*/
+                mEmailEditText.setText(data.getString("email"));
 
                     JSONArray commentsArray = new JSONArray(result.get(1));
                     for (int i = 0; i < commentsArray.length(); i++) {
@@ -191,7 +173,6 @@ public class InstructorDetailActivity extends ActionBarActivity {
                         newComment.setCommentPostDate(commentObject.getString("date"));
                         mCommentsList.add(newComment);
                     }
-                  //  Log.i(TAG, "mCommentsList" + mCommentsList);
                     mCommentAdapter = new CommentAdapter(mCommentsList);
                     mCommentListView.setAdapter(mCommentAdapter);
                 }
@@ -206,9 +187,6 @@ public class InstructorDetailActivity extends ActionBarActivity {
                         newComment.setCommentPostDate(commentObject.getString("date"));
                         mCommentsList.add(newComment);
                     }
-                    Log.i(TAG, "mCommentsList" + mCommentsList);
-                   // mCommentAdapter = new CommentAdapter(mCommentsList);
-                   // mCommentListView.setAdapter(mCommentAdapter);
                     mCommentAdapter.notifyDataSetChanged();
                 }
             } catch (JSONException e) {
