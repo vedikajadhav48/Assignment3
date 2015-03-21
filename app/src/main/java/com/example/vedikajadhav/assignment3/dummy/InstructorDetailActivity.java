@@ -36,11 +36,12 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-public class InstructorDetailActivity extends ActionBarActivity {
+public class InstructorDetailActivity extends ActionBarActivity implements OnTaskFinishedListener{
     private static final String TAG = "InstructorDetailActivity";
     AndroidHttpClient mInstructorDetailHttpClient;
     HttpInstructorDetailTask mInstructorDetailTask;
-    String mInstructorDetailUrl, mInstructorCommentsUrl;
+    HttpPostCommentTask mPostCommentTask;
+    String mInstructorDetailUrl, mInstructorCommentsUrl, mPostCommentUrl;
     private int mInstructorId;
     private String mInstructorFirstName;
     private String mInstructorLastName;
@@ -51,7 +52,7 @@ public class InstructorDetailActivity extends ActionBarActivity {
     private EditText mCommentsEditText;
     private EditText mCommentWriteText;
     private ListView mCommentListView;
-    private CommentAdapter mCommentAdapter;
+    private CommentsAdapter mCommentAdapter;
     ArrayList<Comment> mCommentsList = new ArrayList<Comment>();
     ArrayList<String> combinedResponse = new ArrayList<String>();
     String commentToPost;
@@ -70,7 +71,7 @@ public class InstructorDetailActivity extends ActionBarActivity {
         //mCommentsEditText = (EditText)findViewById(R.id.comments_edit_text);
         mCommentWriteText = (EditText) findViewById(R.id.write_comment_edit_text);
 
-        mCommentAdapter = new CommentAdapter(mCommentsList);
+        mCommentAdapter = new CommentsAdapter(mCommentsList, this);
 
         mInstructorId = getIntent().getIntExtra(InstructorListActivity.EXTRA_INSTRUCTOR_ID, 0);
         mInstructorFirstName = getIntent().getStringExtra(InstructorListActivity.EXTRA_INSTRUCTOR_FIRST_NAME);
@@ -81,11 +82,10 @@ public class InstructorDetailActivity extends ActionBarActivity {
             actionBar.setSubtitle(mInstructorFirstName + " " + mInstructorLastName);
         }
 
-        mInstructorDetailTask = new HttpInstructorDetailTask();
-        mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
-
         mInstructorDetailUrl = (getResources().getString(R.string.instructor_detail_url)) + mInstructorId;
         mInstructorCommentsUrl = (getResources().getString(R.string.instructor_comments_url)) + mInstructorId;
+        mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+        mInstructorDetailTask = new HttpInstructorDetailTask(mInstructorDetailHttpClient, this);
         mInstructorDetailTask.execute(mInstructorDetailUrl, mInstructorCommentsUrl);
         mCommentListView.setAdapter(mCommentAdapter);
     }
@@ -95,12 +95,10 @@ public class InstructorDetailActivity extends ActionBarActivity {
         mCommentWriteText.setText("");
         Log.i(TAG, "Text inside the comment" + commentToPost);
 
-        String postCommentUrl = "http://bismarck.sdsu.edu/rateme/comment/" + mInstructorId;
-        HttpClientPostTask postTask = new HttpClientPostTask();
+        mPostCommentUrl = (getResources().getString(R.string.post_instructor_comment_url)) + mInstructorId;
         mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
-        postTask.execute(postCommentUrl);
-        Log.i(TAG, "Hi");
-
+        mPostCommentTask = new HttpPostCommentTask(mInstructorDetailHttpClient, this, commentToPost);
+        mPostCommentTask.execute(mPostCommentUrl);
     }
 
     @Override
@@ -147,65 +145,18 @@ public class InstructorDetailActivity extends ActionBarActivity {
 
     }
 
-    //inner AsyncTask
-    class HttpInstructorDetailTask extends AsyncTask<String, Void, ArrayList<String>> {
-        String responseBody;
+    @Override
+    public void onFinished(String result) {
 
-        @Override
-        protected ArrayList<String> doInBackground(String... urls) {
-            try {
-                for (int i = 0; i < urls.length; i++) {
-                    ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                    HttpGet getMethod = new HttpGet(urls[i]);
-                    responseBody = mInstructorDetailHttpClient.execute(getMethod, responseHandler);
-                    combinedResponse.add(responseBody);
-                }
-                Log.i(TAG, "Combined response" + combinedResponse);
-                return combinedResponse;
-            } catch (Throwable throwable) {
-                Log.i(TAG, "did not work", throwable);
-                throwable.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(ArrayList<String> result) {
-            getInstructorDetails(result);
-
-        }
     }
 
-//Inner class CommentAdapter
-
-    private class CommentAdapter extends ArrayAdapter<Comment> {
-
-        public CommentAdapter(ArrayList<Comment> mCommentList) {
-            super(getApplicationContext(), 0, mCommentList);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            //if you weren't given a view inflate one
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.comment_list_item, null);
-            }
-
-            //Configure the view for this Instructor
-            Comment comment = getItem(position);
-
-            TextView commentPostDateTextView = (TextView) convertView.findViewById(R.id.comment_date_text_view);
-            commentPostDateTextView.setText(comment.getCommentPostDate());
-
-            TextView commentTextView = (TextView) convertView.findViewById(R.id.comment_text_view);
-            commentTextView.setText(comment.getCommentText());
-
-            return convertView;
-        }
+    @Override
+    public void onDetailedFinished(ArrayList<String> result) {
+        getInstructorDetails(result);
     }
 
     //inner HttpClientPostTask
-    class HttpClientPostTask extends AsyncTask<String, Void, Void> {
+ /*   class HttpClientPostTask extends AsyncTask<String, Void, Void> {
         String responseBody;
 
         @Override
@@ -229,11 +180,11 @@ public class InstructorDetailActivity extends ActionBarActivity {
 
         @Override
         public void onPostExecute(Void result) {
-            HttpInstructorDetailTask newTask = new HttpInstructorDetailTask();
-            mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+            *//*mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+            HttpInstructorDetailTask newTask = new HttpInstructorDetailTask(mInstructorDetailHttpClient, this);
             String url2 = "http://bismarck.sdsu.edu/rateme/comments/" + mInstructorId;
-            newTask.execute(url2);
+            newTask.execute(url2);*//*
         }
-    }
+    }*/
 
 }

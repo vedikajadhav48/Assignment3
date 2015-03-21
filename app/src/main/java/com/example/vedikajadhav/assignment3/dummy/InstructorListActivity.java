@@ -117,4 +117,9 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
     public void onFinished(String result) {
         getInstructorList(result);
     }
+
+    @Override
+    public void onDetailedFinished(ArrayList<String> result) {
+
+    }
 }
