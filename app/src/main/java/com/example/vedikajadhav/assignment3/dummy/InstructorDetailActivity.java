@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.example.vedikajadhav.assignment3.R;
@@ -41,7 +43,8 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
     AndroidHttpClient mInstructorDetailHttpClient;
     HttpInstructorDetailTask mInstructorDetailTask;
     HttpPostCommentTask mPostCommentTask;
-    String mInstructorDetailUrl, mInstructorCommentsUrl, mPostCommentUrl;
+    HttpPostRatingTask mPostRatingTask;
+    String mInstructorDetailUrl, mInstructorCommentsUrl, mPostCommentUrl, mPostRateUrl;
     private int mInstructorId;
     private String mInstructorFirstName;
     private String mInstructorLastName;
@@ -49,6 +52,13 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
     private EditText mPhoneEditText;
     private EditText mEmailEditText;
     private EditText mRatingEditText;
+    private RadioGroup mRateRadioGroup;
+    private RadioButton mRadioButton1;
+    private RadioButton mRadioButton2;
+    private RadioButton mRadioButton3;
+    private RadioButton mRadioButton4;
+    private RadioButton mRadioButton5;
+    private String selectedRate;
     private EditText mCommentsEditText;
     private EditText mCommentWriteText;
     private ListView mCommentListView;
@@ -68,6 +78,29 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
         mPhoneEditText = (EditText) findViewById(R.id.phone_edit_text);
         mEmailEditText = (EditText) findViewById(R.id.email_edit_text);
         mRatingEditText = (EditText) findViewById(R.id.rating_edit_text);
+        mRateRadioGroup = (RadioGroup)findViewById(R.id.radioGroup1);
+        mRadioButton1 = (RadioButton)findViewById(R.id.radio0);
+        mRadioButton2 = (RadioButton)findViewById(R.id.radio1);
+        mRadioButton3 = (RadioButton)findViewById(R.id.radio2);
+        mRadioButton4 = (RadioButton)findViewById(R.id.radio3);
+        mRadioButton5 = (RadioButton)findViewById(R.id.radio4);
+        mRadioButton1.setSelected(true);
+        mRateRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+        public void onCheckedChanged(RadioGroup radioGroup, int i){
+                if(i == R.id.radio0){
+                    selectedRate = mRadioButton1.getText().toString();
+                }else if (i == R.id.radio1){
+                    selectedRate = mRadioButton2.getText().toString();
+                }else if (i == R.id.radio2){
+                    selectedRate = mRadioButton3.getText().toString();
+                }else if (i == R.id.radio3){
+                    selectedRate = mRadioButton4.getText().toString();
+                }else{
+                    selectedRate = mRadioButton5.getText().toString();
+                }
+            }
+        });
         //mCommentsEditText = (EditText)findViewById(R.id.comments_edit_text);
         mCommentWriteText = (EditText) findViewById(R.id.write_comment_edit_text);
 
@@ -97,15 +130,24 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
 
         mPostCommentUrl = (getResources().getString(R.string.post_instructor_comment_url)) + mInstructorId;
         mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
-        mPostCommentTask = new HttpPostCommentTask(mInstructorDetailHttpClient, this, commentToPost);
+        mPostCommentTask = new HttpPostCommentTask(mInstructorDetailHttpClient, this, commentToPost, mInstructorId);
         mPostCommentTask.execute(mPostCommentUrl);
+    }
+
+    public void rateInstructor(View rateButton){
+        mPostRateUrl = (getResources().getString(R.string.post_instructor_rating_url)) + selectedRate + "/" + mInstructorId;
+        mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+        mPostRatingTask = new HttpPostRatingTask(mInstructorDetailHttpClient, this, selectedRate);
+        mPostRatingTask.execute(mPostRateUrl);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.i(TAG, "onPause()");
-        mInstructorDetailHttpClient.close();
+        if(mInstructorDetailHttpClient != null){
+            mInstructorDetailHttpClient.close();
+        }
     }
 
     public void getInstructorComments(String commentResult) {
@@ -134,6 +176,8 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
                 mOfficeEditText.setText(data.getString("office"));
                 mPhoneEditText.setText(data.getString("phone"));
                 mEmailEditText.setText(data.getString("email"));
+                mRatingEditText.setText("average:" + data.getJSONObject("rating").getString("average")
+                        + " total Rating:" + data.getJSONObject("rating").getString("totalRatings"));
 
                 getInstructorComments(result.get(1));
             } else {
@@ -147,7 +191,10 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
 
     @Override
     public void onFinished(String result) {
-
+        //mCommentsUrl = (mContext.getResources().getString(R.string.instructor_detail_url)) + mInstructorId;
+        mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+        HttpInstructorDetailTask newGetCommentsTask = new HttpInstructorDetailTask(mInstructorDetailHttpClient, this);
+        newGetCommentsTask.execute(mInstructorCommentsUrl);
     }
 
     @Override
@@ -155,36 +202,10 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
         getInstructorDetails(result);
     }
 
-    //inner HttpClientPostTask
- /*   class HttpClientPostTask extends AsyncTask<String, Void, Void> {
-        String responseBody;
-
-        @Override
-        protected Void doInBackground(String... postUrl) {
-            HttpPost postMethod = new HttpPost(postUrl[0]);
-            StringEntity comment = null;
-            try {
-                comment = new StringEntity(commentToPost, HTTP.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                Log.i("rew", e.toString());
-            }
-            postMethod.setHeader("Content-Type", "application/json;charset=UTF-8");
-            postMethod.setEntity(comment);
-            try {
-                HttpResponse responseBody = mInstructorDetailHttpClient.execute(postMethod);
-            } catch (Throwable t) {
-                Log.i("rew", t.toString());
-            }
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(Void result) {
-            *//*mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
-            HttpInstructorDetailTask newTask = new HttpInstructorDetailTask(mInstructorDetailHttpClient, this);
-            String url2 = "http://bismarck.sdsu.edu/rateme/comments/" + mInstructorId;
-            newTask.execute(url2);*//*
-        }
-    }*/
-
+    @Override
+    public void onRatingFinished(String result) {
+        mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
+        HttpInstructorDetailTask newGetRatingTask = new HttpInstructorDetailTask(mInstructorDetailHttpClient, this);
+        newGetRatingTask.execute(mInstructorDetailUrl);
+    }
 }

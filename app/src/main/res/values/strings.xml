@@ -11,6 +11,12 @@
     <string name="phone_text_view">Phone</string>
     <string name="email_text_view">Email</string>
     <string name="rating_text_view">Rating</string>
+    <string name="rate_instructor_button_label">Rate</string>
+    <string name="rate_1">1</string>
+    <string name="rate_2">2</string>
+    <string name="rate_3">3</string>
+    <string name="rate_4">4</string>
+    <string name="rate_5">5</string>
     <string name="comments_label_text_view">Comments</string>
     <string name="write_comment_hint">Write Comment here...</string>
     <string name="post_comment_button_label">Post Comment</string>

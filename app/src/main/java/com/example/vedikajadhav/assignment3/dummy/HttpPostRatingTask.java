@@ -4,8 +4,7 @@ import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import com.example.vedikajadhav.assignment3.R;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -15,38 +14,34 @@ import org.apache.http.protocol.HTTP;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created by Vedika Jadhav on 3/20/2015.
+ * Created by Vedika Jadhav on 3/22/2015.
  */
-public class HttpPostCommentTask extends AsyncTask<String, Void, String> {
-    private static final String TAG = "HttpPostCommentTask";
+public class HttpPostRatingTask extends AsyncTask<String, Void, String>{
+    private static final String TAG = "HttpPostRatingTask";
     OnTaskFinishedListener mOnTaskFinishedListener;
     AndroidHttpClient mAndroidHttpClient;
     private Context mContext;
-    String mComment;
-    String mCommentsUrl;
-    int mInstructorId;
+    String mRating;
 
-    public HttpPostCommentTask(AndroidHttpClient instructorDetailHttpClient, Context context, String commentToPost, int mInstructorId) {
+    public HttpPostRatingTask(AndroidHttpClient instructorDetailHttpClient, Context context, String selectedRate) {
         mAndroidHttpClient = instructorDetailHttpClient;
         mContext = context;
         mOnTaskFinishedListener = (OnTaskFinishedListener)mContext;
-        mComment = commentToPost;
-        mInstructorId = mInstructorId;
+        mRating = selectedRate;
     }
-
 
     @Override
     protected String doInBackground(String... postUrl) {
         HttpPost postMethod = new HttpPost(postUrl[0]);
-        StringEntity comment = null;
-        Log.i(TAG, "mComment inside PostTask" + mComment);
+        StringEntity rating = null;
+        Log.i(TAG, "mRating inside PostTask" + mRating);
         try {
-            comment = new StringEntity(mComment, HTTP.UTF_8);
+            rating = new StringEntity(mRating, HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             Log.i("rew", e.toString());
         }
         postMethod.setHeader("Content-Type", "application/json;charset=UTF-8");
-        postMethod.setEntity(comment);
+        postMethod.setEntity(rating);
         try {
             HttpResponse responseBody = mAndroidHttpClient.execute(postMethod);
         } catch (Throwable t) {
@@ -57,18 +52,10 @@ public class HttpPostCommentTask extends AsyncTask<String, Void, String> {
 
     @Override
     public void onPostExecute(String result) {
-        Log.i(TAG, "postComment result" + result);
-        if (mOnTaskFinishedListener != null) {
-            mOnTaskFinishedListener.onFinished(result);
-        }
-            /*mCommentsUrl = (mContext.getResources().getString(R.string.instructor_detail_url)) + mInstructorId;
-            mAndroidHttpClient = AndroidHttpClient.newInstance(null);
-            HttpInstructorDetailTask newGetCommentsTask = new HttpInstructorDetailTask(mAndroidHttpClient, mContext);
-            newGetCommentsTask.execute(mCommentsUrl);*/
-
-
-/*            String url2 = "http://bismarck.sdsu.edu/rateme/comments/" + mInstructorId;
-            newTask.execute(url2);*/
+        Toast.makeText(mContext, "Rating posted", Toast.LENGTH_SHORT).show();
+       /* if (mOnTaskFinishedListener != null) {
+            mOnTaskFinishedListener.onRatingFinished(result);
+        }*/
     }
 
     public void setOnTaskFinishedListener(OnTaskFinishedListener mListener){

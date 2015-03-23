@@ -60,6 +60,7 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
             mInstructorListTask.execute(getResources().getString(R.string.instructor_list_url));
             Log.i(TAG, "vedika mInstructorNamesList" + mInstructorNamesList);
         }
+        Log.i(TAG, "setInstructorListAdapter" +instructorAdapter);
         mListView.setAdapter(instructorAdapter);
         mListView.setOnItemClickListener(this);
     }
@@ -106,8 +107,8 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
                 newInstructor.setLastName(firstPerson.getString("lastName"));
                 mInstructorNamesList.add(newInstructor);
             }
-
-            Log.i(TAG, "getInstructorList");
+            instructorAdapter.notifyDataSetChanged();
+            Log.i(TAG, "getInstructorList" + instructorAdapter);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -120,6 +121,11 @@ public class InstructorListActivity extends ActionBarActivity implements Adapter
 
     @Override
     public void onDetailedFinished(ArrayList<String> result) {
+
+    }
+
+    @Override
+    public void onRatingFinished(String result) {
 
     }
 }

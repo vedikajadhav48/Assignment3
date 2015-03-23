@@ -8,4 +8,5 @@ import java.util.ArrayList;
 public interface OnTaskFinishedListener {
     public void onFinished(String result);
     public void onDetailedFinished(ArrayList<String> result);
+    public void onRatingFinished(String result);
 }
