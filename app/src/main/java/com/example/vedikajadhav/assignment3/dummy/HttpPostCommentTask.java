@@ -23,15 +23,12 @@ public class HttpPostCommentTask extends AsyncTask<String, Void, String> {
     AndroidHttpClient mAndroidHttpClient;
     private Context mContext;
     String mComment;
-    String mCommentsUrl;
-    int mInstructorId;
 
-    public HttpPostCommentTask(AndroidHttpClient instructorDetailHttpClient, Context context, String commentToPost, int mInstructorId) {
+    public HttpPostCommentTask(AndroidHttpClient instructorDetailHttpClient, Context context, String commentToPost) {
         mAndroidHttpClient = instructorDetailHttpClient;
         mContext = context;
         mOnTaskFinishedListener = (OnTaskFinishedListener)mContext;
         mComment = commentToPost;
-        mInstructorId = mInstructorId;
     }
 
 
@@ -57,18 +54,9 @@ public class HttpPostCommentTask extends AsyncTask<String, Void, String> {
 
     @Override
     public void onPostExecute(String result) {
-        Log.i(TAG, "postComment result" + result);
         if (mOnTaskFinishedListener != null) {
             mOnTaskFinishedListener.onFinished(result);
         }
-            /*mCommentsUrl = (mContext.getResources().getString(R.string.instructor_detail_url)) + mInstructorId;
-            mAndroidHttpClient = AndroidHttpClient.newInstance(null);
-            HttpInstructorDetailTask newGetCommentsTask = new HttpInstructorDetailTask(mAndroidHttpClient, mContext);
-            newGetCommentsTask.execute(mCommentsUrl);*/
-
-
-/*            String url2 = "http://bismarck.sdsu.edu/rateme/comments/" + mInstructorId;
-            newTask.execute(url2);*/
     }
 
     public void setOnTaskFinishedListener(OnTaskFinishedListener mListener){

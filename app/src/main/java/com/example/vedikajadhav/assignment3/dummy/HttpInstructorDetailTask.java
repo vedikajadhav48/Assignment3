@@ -38,7 +38,6 @@ public class HttpInstructorDetailTask extends AsyncTask<String, Void, ArrayList<
                 responseBody = mAndroidHttpClient.execute(getMethod, responseHandler);
                 combinedResponse.add(responseBody);
             }
-            Log.i(TAG, "Combined response" + combinedResponse);
             return combinedResponse;
         } catch (Throwable throwable) {
             Log.i(TAG, "did not work", throwable);
@@ -49,7 +48,6 @@ public class HttpInstructorDetailTask extends AsyncTask<String, Void, ArrayList<
 
     @Override
     public void onPostExecute(ArrayList<String> result) {
-        Log.i(TAG, "Result passed to postExecute listActivity" + result);
         if (mOnTaskFinishedListener != null) {
             mOnTaskFinishedListener.onDetailedFinished(result);
         }

@@ -35,30 +35,6 @@ public class Instructor {
         mLastName = lastName;
     }
 
-    public String getOffice() {
-        return mOffice;
-    }
-
-    public void setOffice(String office) {
-        mOffice = office;
-    }
-
-    public String getPhone() {
-        return mPhone;
-    }
-
-    public void setPhone(String phone) {
-        mPhone = phone;
-    }
-
-    public String getEmail() {
-        return mEmail;
-    }
-
-    public void setEmail(String email) {
-        mEmail = email;
-    }
-
     @Override
     public String toString(){
         return mFirstName;

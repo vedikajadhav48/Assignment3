@@ -130,7 +130,7 @@ public class InstructorDetailActivity extends ActionBarActivity implements OnTas
 
         mPostCommentUrl = (getResources().getString(R.string.post_instructor_comment_url)) + mInstructorId;
         mInstructorDetailHttpClient = AndroidHttpClient.newInstance(null);
-        mPostCommentTask = new HttpPostCommentTask(mInstructorDetailHttpClient, this, commentToPost, mInstructorId);
+        mPostCommentTask = new HttpPostCommentTask(mInstructorDetailHttpClient, this, commentToPost);
         mPostCommentTask.execute(mPostCommentUrl);
     }
 
